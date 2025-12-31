@@ -7,9 +7,7 @@
 
   <!-- ================== ESTILOS ================== -->
   <style>
-    /* Variables de colores y medidas */
     :root{
-      --bg:#0b0b0b;
       --card:#1a1a1a;
       --accent:#00c853;
       --muted:#9aa0a6;
@@ -32,7 +30,7 @@
     }
 
     header{
-      max-width:480px;
+      max-width:520px;
       width:100%;
       text-align:center;
     }
@@ -40,7 +38,6 @@
     h1{ margin:8px 0; }
     p{ color:var(--muted); margin:0; }
 
-    /* Botón */
     button.main{
       margin-top:12px;
       padding:12px 18px;
@@ -52,26 +49,25 @@
       color:#000;
     }
 
-    /* ===== CARTÓN 4 ARRIBA / 4 ABAJO ===== */
+    /* ===== CARTÓN 4x2 ===== */
     #carton{
       margin-top:20px;
       display:grid;
-      grid-template-columns:repeat(4, 1fr); /* 4 columnas */
+      grid-template-columns:repeat(4, 1fr);
       gap:var(--gap);
       width:100%;
-      max-width:480px;
+      max-width:520px;
     }
 
-    /* Casillero */
     .tema{
       background:var(--card);
       border:none;
       border-radius:var(--radius);
-      padding:14px;
-      min-height:70px;
+      padding:12px;
+      min-height:80px;
       color:#fff;
       cursor:pointer;
-      font-size:0.95rem;
+      font-size:0.85rem;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -79,7 +75,6 @@
       transition:0.15s;
     }
 
-    /* Casillero marcado */
     .tema[aria-pressed="true"]{
       background:var(--accent);
       color:#000;
@@ -87,7 +82,6 @@
       font-weight:bold;
     }
 
-    /* Resultado */
     #resultado{
       margin-top:16px;
       font-size:1.2rem;
@@ -99,93 +93,179 @@
 
 <body>
 
-  <!-- ================== CABECERA ================== -->
-  <header>
-    <h1>🎵 Bingo Musical</h1>
-    <p>4 arriba · 4 abajo</p>
-    <button class="main" onclick="generarCarton()">Obtener cartón</button>
-  </header>
+<header>
+  <h1>🎵 Bingo Musical</h1>
+  <p>4 arriba · 4 abajo</p>
+  <button class="main" onclick="generarCarton()">Obtener cartón</button>
+</header>
 
-  <!-- Cartón -->
-  <div id="carton"></div>
+<div id="carton"></div>
+<div id="resultado"></div>
 
-  <!-- Mensajes -->
-  <div id="resultado"></div>
+<script>
+/* ================== LISTA DE CANCIONES ================== */
+const canciones = [
+  // Clásicos internacionales
+  "Hey Jude – The Beatles",
+  "Twist and Shout – The Beatles",
+  "Stand By Me – Ben E. King",
+  "Satisfaction – The Rolling Stones",
+  "California Dreamin’ – The Mamas & The Papas",
+  "Paint It Black – The Rolling Stones",
+  "My Girl – The Temptations",
+  "Respect – Aretha Franklin",
+  "I Want to Hold Your Hand – The Beatles",
+  "Light My Fire – The Doors",
 
-  <!-- ================== LÓGICA ================== -->
-  <script>
-    /* Lista de temas (reemplazá por los reales) */
-    const temas = [
-      "Tema 1","Tema 2","Tema 3","Tema 4",
-      "Tema 5","Tema 6","Tema 7","Tema 8",
-      "Tema 9","Tema 10","Tema 11","Tema 12"
-    ];
+  // 90s / 2000s
+  "Smells Like Teen Spirit – Nirvana",
+  "Wonderwall – Oasis",
+  "Zombie – The Cranberries",
+  "Torn – Natalie Imbruglia",
+  "Losing My Religion – R.E.M.",
+  "Baby One More Time – Britney Spears",
+  "No Scrubs – TLC",
+  "Everybody – Backstreet Boys",
+  "My Heart Will Go On – Celine Dion",
+  "Iris – Goo Goo Dolls",
 
-    let lineaArriba = false;
-    let lineaAbajo = false;
+  // Pop internacional
+  "Complicated – Avril Lavigne",
+  "Smooth – Santana",
+  "Believe – Cher",
+  "Poker Face – Lady Gaga",
+  "Rolling in the Deep – Adele",
+  "Umbrella – Rihanna",
+  "Viva La Vida – Coldplay",
+  "Firework – Katy Perry",
+  "Chasing Cars – Snow Patrol",
+  "Rehab – Amy Winehouse",
 
-    /* Genera un cartón nuevo */
-    function generarCarton(){
-      const carton = document.getElementById("carton");
-      const resultado = document.getElementById("resultado");
+  // Tropical / Cumbia
+  "Bombón Asesino – Ninel Conde",
+  "Mayonesa – Chocolate",
+  "La Cumbia del Río – La Sonora Dinamita",
+  "El Tucanazo – Los Tucanes de Tijuana",
+  "Que Nadie Sepa Mi Sufrir – La Sonora Santanera",
+  "La Pollera Colorá – Carmen Rivero",
+  "Se Me Perdió La Cadenita – Los Hermanos Rosario",
+  "Aventurero – Grupo 5",
 
-      carton.innerHTML = "";
-      resultado.textContent = "";
+  // Urbano / Latino
+  "Gasolina – Daddy Yankee",
+  "Dile – Don Omar",
+  "Despacito – Luis Fonsi",
+  "Pa’ Que Retozen – Tego Calderón",
+  "Mayor Que Yo – Wisin & Yandel",
+  "Me Gusta – Anitta",
+  "Bichota – Karol G",
+  "Tusa – Karol G & Nicki Minaj",
+  "Ella Y Yo – Don Omar & Aventura",
+  "Te Boté – Nio García, Casper, Darell",
+  "La Perla – Rosalía",
 
-      lineaArriba = false;
-      lineaAbajo = false;
+  // Románticos clásicos
+  "Te He Prometido – Leo Dan",
+  "Cómo Te Extraño Mi Amor – Leo Dan",
+  "Mary Es Mi Amor – Leo Dan",
+  "Esa Pared – Leo Dan",
+  "Celoso – Palito Ortega",
+  "La Felicidad – Palito Ortega",
+  "Amor de Primavera – Sandro",
+  "Rosa Rosa – Sandro",
+  "Un Beso y Una Flor – Nino Bravo",
+  "Mi Viejo – Piero",
 
-      /* Selecciona 8 temas aleatorios */
-      const seleccionados = [...temas]
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 8);
+  // Pop latino
+  "Colgando en tus manos – Carlos Baute & Marta Sánchez",
+  "Labios Compartidos – Maná",
+  "Eres – Café Tacvba",
+  "Limón y Sal – Julieta Venegas",
+  "Me Voy – Julieta Venegas",
+  "Mientes – Camila",
+  "Todo Cambió – Camila",
+  "Y, ¿Si Fuera Ella? – Alejandro Sanz",
+  "Amiga Mía – Alejandro Sanz",
+  "Corazón Espinado – Santana & Maná",
 
-      /* Crea los 8 botones */
-      seleccionados.forEach(tema => {
-        const btn = document.createElement("button");
-        btn.className = "tema";
-        btn.textContent = tema;
-        btn.setAttribute("aria-pressed","false");
+  // Fiesta / mix
+  "Llamado de Emergencia – Daddy Yankee",
+  "Quédate – Kany García",
+  "Si Tú No Estás – Rosana",
+  "Vivo Por Ella – Andrea Bocelli & Marta Sánchez",
+  "Quédate Conmigo – Pastora Soler",
+  "Dónde Están Corazón – Enrique Iglesias",
+  "Bailando – Enrique Iglesias",
+  "Súbeme la Radio – Enrique Iglesias",
+  "La Bicicleta – Carlos Vives & Shakira",
+  "Me Enamora – Juanes",
+  "A Dios le Pido – Juanes",
+  "Fotografía – Juanes & Nelly Furtado",
+  "La Camisa Negra – Juanes",
+  "Limbo – Daddy Yankee",
+  "La Vida Es un Carnaval – Celia Cruz",
+  "Oye Como Va – Santana",
+  "Black Magic Woman – Santana",
+  "La Gozadera – Gente de Zona & Marc Anthony",
+  "Bailar – Elvis Crespo",
+  "Llorar – Jesse & Joy & Mario Domm",
+  "Eres Para Mí – Julieta Venegas",
+  "Labios Rojos – Mon Laferte"
+];
 
-        btn.onclick = () => marcarTema(btn);
+let lineaArriba = false;
+let lineaAbajo = false;
 
-        carton.appendChild(btn);
-      });
-    }
+/* ================== GENERAR CARTÓN ================== */
+function generarCarton(){
+  const carton = document.getElementById("carton");
+  const resultado = document.getElementById("resultado");
 
-    /* Marca un tema y verifica líneas */
-    function marcarTema(btn){
-      if(btn.getAttribute("aria-pressed") === "true") return;
+  carton.innerHTML = "";
+  resultado.textContent = "";
+  lineaArriba = false;
+  lineaAbajo = false;
 
-      btn.setAttribute("aria-pressed","true");
+  const seleccionados = [...canciones]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 8);
 
-      const botones = [...document.querySelectorAll(".tema")];
+  seleccionados.forEach(cancion => {
+    const btn = document.createElement("button");
+    btn.className = "tema";
+    btn.textContent = cancion;
+    btn.setAttribute("aria-pressed","false");
+    btn.onclick = () => marcar(btn);
+    carton.appendChild(btn);
+  });
+}
 
-      /* Línea superior: botones 0 a 3 */
-      const arriba = botones
-        .slice(0,4)
-        .every(b => b.getAttribute("aria-pressed") === "true");
+/* ================== MARCAR Y VERIFICAR ================== */
+function marcar(btn){
+  if(btn.getAttribute("aria-pressed") === "true") return;
+  btn.setAttribute("aria-pressed","true");
 
-      /* Línea inferior: botones 4 a 7 */
-      const abajo = botones
-        .slice(4,8)
-        .every(b => b.getAttribute("aria-pressed") === "true");
+  const botones = [...document.querySelectorAll(".tema")];
 
-      if(arriba && !lineaArriba){
-        lineaArriba = true;
-        resultado.textContent = "🎉 ¡LÍNEA SUPERIOR!";
-      }
+  const arriba = botones.slice(0,4).every(b => b.getAttribute("aria-pressed") === "true");
+  const abajo  = botones.slice(4,8).every(b => b.getAttribute("aria-pressed") === "true");
 
-      if(abajo && !lineaAbajo){
-        lineaAbajo = true;
-        resultado.textContent = "🎉 ¡LÍNEA INFERIOR!";
-      }
+  if(arriba && !lineaArriba){
+    lineaArriba = true;
+    resultado.textContent = "🎉 ¡LÍNEA SUPERIOR!";
+  }
 
-      if(arriba && abajo){
-        resultado.textContent = "🏆 ¡BINGO!";
-      }
-    }
-  </script>
+  if(abajo && !lineaAbajo){
+    lineaAbajo = true;
+    resultado.textContent = "🎉 ¡LÍNEA INFERIOR!";
+  }
+
+  if(arriba && abajo){
+    resultado.textContent = "🏆 ¡BINGO!";
+  }
+}
+</script>
 
 </body>
 </html>
+
